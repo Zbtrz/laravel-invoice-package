@@ -1,0 +1,13 @@
+{
+    "name": "zbtrz/laravel-invoice",
+    "description": "invoice generator",
+    "type": "library",
+    "license": "MIT",
+    "minimum-stability": "dev",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Zbtrz\\Invoice\\" : "src/"
+        }
+    }
+}
