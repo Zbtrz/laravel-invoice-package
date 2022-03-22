@@ -9,5 +9,12 @@
         "psr-4": {
             "Zbtrz\\Invoice\\" : "src/"
         }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Zbtrz\\Invoice\\InvoiceServiceProvider"
+            ]
+        }
     }
 }
