@@ -11,15 +11,12 @@ use Zbtrz\Invoice\Classes\Buyer;
 use Zbtrz\Invoice\Classes\InvoicePosition;
 use Zbtrz\Invoice\Classes\InvoiceSubtotal;
 use Zbtrz\Invoice\Classes\Seller;
-use Zbtrz\Invoice\Traits\InvoiceFields;
 
 /**
  * Class Invoices.
  */
 class Invoice
 {
-    use InvoiceFields;
-
     const CALCULATION_METHOD_FROM_NET = 1;
     const CALCULATION_METHOD_FROM_GROSS = 2;
 
@@ -38,11 +35,17 @@ class Invoice
 
     private string $name;
 
+    private string $signature;
+
     private string $template = 'default';
 
     private string $output;
 
     private string $filename = 'filename';
+
+    public string $lang;
+
+    public string $logo = '';
 
     private float $totalNet;
 
@@ -56,16 +59,41 @@ class Invoice
 
     private int $calculationMode = self::CALCULATION_MODE_PER_POSITION;
 
-    public function __construct($name)
+    public function __construct(string $name)
     {
         $this->name = $name ?? 'Invoice';
         $this->invoicePositions = Collection::make([]);
         $this->invoiceTotals = Collection::make([]);
+        $this->lang = app()->getLocale();
     }
 
-    public static function create($name = ''): static
+    public static function create(string $name = ''): static
     {
         return new static($name);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function addPositions(array $positions): static
+    {
+        foreach ($positions as $position) {
+            $this->addPosition($position);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function addPosition(InvoicePosition $position): static
+    {
+        $position->validate();
+
+        $this->invoicePositions->push($position);
+
+        return $this;
     }
 
     /**
@@ -88,26 +116,21 @@ class Invoice
         return $this;
     }
 
-    /**
-     * @throws Exception
-     */
-    public function addPosition(InvoicePosition $position): static
+    public function logo(string $logo): static
     {
-        $position->validate();
-
-        $this->invoicePositions->push($position);
+        $this->logo = $logo;
 
         return $this;
     }
 
-    public function seller($seller): static
+    public function seller(Seller $seller): static
     {
         $this->seller = $seller;
 
         return $this;
     }
 
-    public function buyer($buyer): static
+    public function buyer(Buyer $buyer): static
     {
         $this->buyer = $buyer;
 
@@ -154,18 +177,6 @@ class Invoice
         return $this->totalGross;
     }
 
-    /**
-     * @throws Exception
-     */
-    public function addPositions($positions): static
-    {
-        foreach ($positions as $position) {
-            $this->addPosition($position);
-        }
-
-        return $this;
-    }
-
     public function calculateFromNet(): static
     {
         $this->calculationMethod = self::CALCULATION_METHOD_FROM_NET;
@@ -182,7 +193,6 @@ class Invoice
 
     public function calculatePerPosition(): static
     {
-
         $this->calculationMode = self::CALCULATION_MODE_PER_POSITION;
 
         return $this;
@@ -191,6 +201,21 @@ class Invoice
     public function calculatePerVatRate(): static
     {
         $this->calculationMode = self::CALCULATION_MODE_PER_VAT_RATE;
+
+        return $this;
+    }
+
+    public function getLogo(): string
+    {
+        $type = pathinfo($this->logo, PATHINFO_EXTENSION);
+        $data = file_get_contents($this->logo);
+
+        return 'data:image/' . $type . ';base64,' . base64_encode($data);
+    }
+
+    public function lang($lang): static
+    {
+        $this->lang = $lang;
 
         return $this;
     }

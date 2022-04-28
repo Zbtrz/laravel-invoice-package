@@ -11,6 +11,7 @@ class InvoiceServiceProvider extends ServiceProvider
     {
         $this->loadRoutesFrom(__DIR__ . '/routes/web.php');
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'invoice');
+        $this->loadTranslationsFrom(__DIR__ . '/../resources/lang', 'invoice');
         $this->mergeConfigFrom(__DIR__ . '/config/invoice.php', 'invoice');
         $this->publishes([
             __DIR__ . '/config/invoice.php' => config_path('invoice.php'),
