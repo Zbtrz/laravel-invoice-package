@@ -3,7 +3,7 @@
 namespace Zbtrz\Invoice\Classes;
 
 
-class Buyer extends InvoiceParty
+class Buyer extends Contractor
 {
 
 }
